@@ -1,26 +1,78 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #2e7d32;
+  --color-primary-hover: #256628;
+  --color-primary-light: #e8f5e9;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #f9a825;
+  --color-secondary-light: #fff8e1;
+
+  --color-accent: #e53935;
+  --color-accent-light: #ffebee;
+
+  --color-background: #fafaf7;
+  --color-background-subtle: #f3f4f0;
+  --color-surface: #ffffff;
+
+  --color-border: #e5e7e0;
+  --color-border-strong: #d1d5db;
+
+  --color-foreground: #1f2937;
+  --color-muted-foreground: #6b7280;
+
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-error: #dc2626;
+  --color-error-light: #fee2e2;
+  --color-info: #2563eb;
+  --color-info-light: #dbeafe;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-foreground: var(--color-primary-foreground);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-secondary: var(--color-secondary);
+  --color-secondary-light: var(--color-secondary-light);
+
+  --color-accent: var(--color-accent);
+  --color-accent-light: var(--color-accent-light);
+
+  --color-background: var(--color-background);
+  --color-background-subtle: var(--color-background-subtle);
+  --color-surface: var(--color-surface);
+
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  --color-foreground: var(--color-foreground);
+  --color-muted-foreground: var(--color-muted-foreground);
+
+  --color-success: var(--color-success);
+  --color-success-light: var(--color-success-light);
+  --color-warning: var(--color-warning);
+  --color-warning-light: var(--color-warning-light);
+  --color-error: var(--color-error);
+  --color-error-light: var(--color-error-light);
+  --color-info: var(--color-info);
+  --color-info-light: var(--color-info-light);
+
+  --font-sans: var(--font-plus-jakarta);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-plus-jakarta), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
 }
