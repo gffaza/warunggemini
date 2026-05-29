@@ -9,6 +9,7 @@ import { ErrorBanner } from "@/components/shared/error-banner";
 import { LoadingState } from "@/components/shared/loading-state";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { isFirebaseConfigured } from "@/config/env";
+import { siteConfig } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
 
 export function LoginView() {
@@ -53,6 +54,10 @@ export function LoginView() {
       title="Selamat datang, Pak/Bu!"
       subtitle="Masuk untuk mulai catat jualan warung dengan Mas Gemini."
     >
+      <p className="mb-6 text-center text-lg font-semibold text-primary">
+        {siteConfig.subTagline}
+      </p>
+
       <Card>
         <CardHeader>
           <CardTitle>Masuk ke WarungGemini</CardTitle>

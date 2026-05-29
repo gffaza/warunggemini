@@ -1,5 +1,6 @@
 import type { ChatMessage } from "@/domain/types/chat";
 import type { Transaction } from "@/domain/types/transaction";
+import { MasGeminiAvatar } from "@/components/chat/mas-gemini-avatar";
 import { TransactionCard } from "@/components/chat/transaction-card";
 import { cn } from "@/lib/utils/cn";
 
@@ -18,8 +19,12 @@ export function MessageBubble({
 
   return (
     <div
-      className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}
+      className={cn(
+        "flex w-full animate-enter-up",
+        isUser ? "justify-end" : "justify-start gap-2",
+      )}
     >
+      {!isUser ? <MasGeminiAvatar className="mt-1" /> : null}
       <div
         className={cn(
           "max-w-[85%] rounded-3xl px-4 py-3 shadow-sm",

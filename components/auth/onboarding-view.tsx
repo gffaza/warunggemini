@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { warungTypes } from "@/config/site";
 import type { WarungType } from "@/config/site";
 import { useAuth } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils/cn";
 
 export function OnboardingView() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export function OnboardingView() {
         warungName: warungName.trim(),
         warungType,
       });
-      router.replace("/home");
+      router.replace("/chat");
     } catch {
       setError("Gagal menyimpan profil warung. Coba lagi ya, Pak.");
     } finally {
@@ -59,6 +60,16 @@ export function OnboardingView() {
           : "Ceritakan warung Anda — cuma 1 menit."
       }
     >
+      <div className="mb-6">
+        <div className="mb-2 flex items-center justify-between text-sm">
+          <span className="font-medium text-muted-foreground">Langkah 1 dari 1</span>
+          <span className="font-semibold text-primary">100%</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-border">
+          <div className="h-full w-full rounded-full bg-primary" />
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label htmlFor="warungName" className="text-sm font-medium">
@@ -80,11 +91,12 @@ export function OnboardingView() {
             {warungTypes.map((type) => (
               <label
                 key={type.value}
-                className={`flex min-h-[48px] cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-3 text-base transition-colors ${
+                className={cn(
+                  "flex min-h-[56px] cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-3 text-base transition-colors",
                   warungType === type.value
                     ? "border-primary bg-primary-light"
-                    : "border-border-strong bg-surface"
-                }`}
+                    : "border-border-strong bg-surface",
+                )}
               >
                 <input
                   type="radio"
@@ -92,9 +104,12 @@ export function OnboardingView() {
                   value={type.value}
                   checked={warungType === type.value}
                   onChange={() => setWarungType(type.value)}
-                  className="h-4 w-4 accent-primary"
+                  className="sr-only"
                 />
-                {type.label}
+                <span className="text-2xl" aria-hidden>
+                  {type.emoji}
+                </span>
+                <span className="font-medium">{type.label}</span>
               </label>
             ))}
           </div>
@@ -103,7 +118,7 @@ export function OnboardingView() {
         {error ? <ErrorBanner message={error} /> : null}
 
         <Button type="submit" isLoading={isSubmitting}>
-          Lanjut ke Beranda
+          Mulai Catat Jualan
         </Button>
       </form>
     </AuthShell>

@@ -17,6 +17,10 @@ interface HistoryResponse {
   transactions: Transaction[];
 }
 
+interface UseChatOptions {
+  onTransactionSaved?: (isFirst: boolean) => void;
+}
+
 function buildThreadItems(
   messages: ChatMessage[],
   transactions: Transaction[],
@@ -31,7 +35,7 @@ function buildThreadItems(
   }));
 }
 
-export function useChat() {
+export function useChat(options?: UseChatOptions) {
   const [items, setItems] = useState<ChatThreadItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isSending, setIsSending] = useState(false);
@@ -62,59 +66,67 @@ export function useChat() {
     void loadHistory();
   }, [loadHistory]);
 
-  const sendMessage = useCallback(async (message: string) => {
-    setError(null);
-    setLastFailedMessage(null);
+  const sendMessage = useCallback(
+    async (message: string) => {
+      setError(null);
+      setLastFailedMessage(null);
 
-    const optimisticId = `optimistic-${Date.now()}`;
-    const optimisticMessage: ChatMessage = {
-      id: optimisticId,
-      userId: "local",
-      role: "user",
-      content: message,
-      createdAt: new Date().toISOString(),
-    };
+      const isFirstTransaction = !items.some((item) => item.transaction);
+      const optimisticId = `optimistic-${Date.now()}`;
+      const optimisticMessage: ChatMessage = {
+        id: optimisticId,
+        userId: "local",
+        role: "user",
+        content: message,
+        createdAt: new Date().toISOString(),
+      };
 
-    setItems((current) => [
-      ...current,
-      { message: optimisticMessage, isOptimistic: true },
-    ]);
-    setIsSending(true);
+      setItems((current) => [
+        ...current,
+        { message: optimisticMessage, isOptimistic: true },
+      ]);
+      setIsSending(true);
 
-    try {
-      const data = await apiFetch<SendMessageResponse>("/api/chat/messages", {
-        method: "POST",
-        body: JSON.stringify({ message }),
-      });
+      try {
+        const data = await apiFetch<SendMessageResponse>("/api/chat/messages", {
+          method: "POST",
+          body: JSON.stringify({ message }),
+        });
 
-      setItems((current) => {
-        const withoutOptimistic = current.filter(
-          (item) => item.message.id !== optimisticId,
+        setItems((current) => {
+          const withoutOptimistic = current.filter(
+            (item) => item.message.id !== optimisticId,
+          );
+
+          return [
+            ...withoutOptimistic,
+            { message: data.userMessage },
+            {
+              message: data.assistantMessage,
+              transaction: data.transaction,
+            },
+          ];
+        });
+
+        if (data.transaction) {
+          options?.onTransactionSaved?.(isFirstTransaction);
+        }
+      } catch (err) {
+        setItems((current) =>
+          current.filter((item) => item.message.id !== optimisticId),
         );
-
-        return [
-          ...withoutOptimistic,
-          { message: data.userMessage },
-          {
-            message: data.assistantMessage,
-            transaction: data.transaction,
-          },
-        ];
-      });
-    } catch (err) {
-      setItems((current) =>
-        current.filter((item) => item.message.id !== optimisticId),
-      );
-      setLastFailedMessage(message);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Ups, gagal catat jualan. Coba kirim ulang ya, Pak.",
-      );
-    } finally {
-      setIsSending(false);
-    }
-  }, []);
+        setLastFailedMessage(message);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Ups, gagal catat jualan. Coba kirim ulang ya, Pak.",
+        );
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [items.length, options],
+  );
 
   const retryLastMessage = useCallback(async () => {
     if (!lastFailedMessage) return;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { AlertTriangle, PackageOpen } from "lucide-react";
 import { PhotoUpload } from "@/components/inventory/photo-upload";
 import { ScanReviewSheet } from "@/components/inventory/scan-review-sheet";
@@ -8,8 +9,22 @@ import { StockListSkeleton } from "@/components/inventory/stock-list-skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorBanner } from "@/components/shared/error-banner";
 import { useInventory } from "@/hooks/use-inventory";
+import { useSuccessToast } from "@/hooks/use-success-toast";
 
 export function InventoryView() {
+  const { showSuccess, Toast } = useSuccessToast();
+
+  const handleSaveSuccess = useCallback(
+    (count: number) => {
+      showSuccess(
+        count === 1
+          ? "Stok berhasil disimpan!"
+          : `${count} barang berhasil disimpan!`,
+      );
+    },
+    [showSuccess],
+  );
+
   const {
     items,
     lowStockItems,
@@ -22,10 +37,12 @@ export function InventoryView() {
     saveReviewedItems,
     closeScanReview,
     reload,
-  } = useInventory();
+  } = useInventory({ onSaveSuccess: handleSaveSuccess });
 
   return (
     <div className="flex flex-col">
+      {Toast}
+
       <header className="border-b border-border bg-surface px-4 py-4">
         <h1 className="text-xl font-bold text-foreground">Stok Barang</h1>
         <p className="text-sm text-muted-foreground">

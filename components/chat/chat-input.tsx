@@ -2,16 +2,24 @@
 
 import { Mic, Send } from "lucide-react";
 import { useState } from "react";
+import { ExampleChips } from "@/components/chat/example-chips";
 import { Button } from "@/components/ui/button";
+import { chatExamples } from "@/config/site";
 import { cn } from "@/lib/utils/cn";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
   isSending?: boolean;
+  showExamples?: boolean;
 }
 
-export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
+export function ChatInput({
+  onSend,
+  disabled,
+  isSending,
+  showExamples = true,
+}: ChatInputProps) {
   const [draft, setDraft] = useState("");
   const [voiceNotice, setVoiceNotice] = useState(false);
 
@@ -25,6 +33,11 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
     setDraft("");
   }
 
+  function handleExampleSelect(example: string) {
+    if (disabled || isSending) return;
+    onSend(example);
+  }
+
   function handleVoicePlaceholder() {
     setVoiceNotice(true);
     window.setTimeout(() => setVoiceNotice(false), 2500);
@@ -32,6 +45,19 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
 
   return (
     <div className="border-t border-border bg-surface px-3 py-3">
+      {showExamples ? (
+        <div className="mb-3">
+          <p className="mb-2 text-xs font-medium text-muted-foreground">
+            Contoh — ketuk untuk coba:
+          </p>
+          <ExampleChips
+            examples={chatExamples}
+            onSelect={handleExampleSelect}
+            disabled={disabled || isSending}
+          />
+        </div>
+      ) : null}
+
       {voiceNotice ? (
         <p
           role="status"
@@ -49,7 +75,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           aria-label="Rekam suara"
           className={cn(
             "flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary",
-            "transition-colors hover:bg-primary-light/80",
+            "transition-all hover:bg-primary-light/80 active:scale-[0.97]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             "disabled:opacity-50",
           )}
@@ -65,7 +91,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           rows={1}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="Ketik jualan... contoh: jual 3 indomie 45 ribu"
+          placeholder="Ketik jualan..."
           disabled={disabled || isSending}
           className={cn(
             "max-h-28 min-h-[48px] flex-1 resize-none rounded-2xl border-2 border-border-strong bg-background px-4 py-3",

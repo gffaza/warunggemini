@@ -16,7 +16,7 @@ export function TransactionCard({
   return (
     <div
       className={cn(
-        "mt-2 rounded-2xl border border-primary/20 bg-primary-light p-4",
+        "mt-2 animate-enter-scale rounded-2xl border border-primary/20 bg-primary-light p-4",
         className,
       )}
     >

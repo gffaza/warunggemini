@@ -16,7 +16,11 @@ interface BatchUpsertResponse {
   items: InventoryItem[];
 }
 
-export function useInventory() {
+interface UseInventoryOptions {
+  onSaveSuccess?: (count: number) => void;
+}
+
+export function useInventory(options?: UseInventoryOptions) {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -106,6 +110,7 @@ export function useInventory() {
           );
         });
         setScanResult(null);
+        options?.onSaveSuccess?.(reviewItems.length);
       } catch (err) {
         setError(
           err instanceof Error
@@ -116,7 +121,7 @@ export function useInventory() {
         setIsSaving(false);
       }
     },
-    [],
+    [options],
   );
 
   const lowStockItems = items.filter(

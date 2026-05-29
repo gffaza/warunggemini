@@ -1,0 +1,18 @@
+{
+  "name": "WarungGemini",
+  "short_name": "WarungGemini",
+  "description": "AI Co-Founder untuk Warung & UMKM Indonesia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAFA",
+  "theme_color": "#2E7D32",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
