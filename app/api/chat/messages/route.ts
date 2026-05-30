@@ -3,6 +3,7 @@ import { requireAdminDb, requireGemini } from "@/lib/api/config-checks";
 import { chatMessageRequestSchema } from "@/domain/schemas/chat.schema";
 import { fail, ok } from "@/lib/api/response";
 import { withAuth } from "@/lib/api/with-auth";
+import { mapGeminiChatError } from "@/lib/gemini/map-error";
 import {
   getChatHistory,
   handleChatMessage,
@@ -57,12 +58,9 @@ export async function POST(request: NextRequest) {
     try {
       const result = await handleChatMessage(userId, parsed.data.message);
       return ok(result);
-    } catch {
-      return fail(
-        "AI_PARSE_FAILED",
-        "Mas Gemini belum paham. Coba tulis lebih detail, misal: jual 3 indomie 45 ribu",
-        502,
-      );
+    } catch (error) {
+      const mapped = mapGeminiChatError(error);
+      return fail(mapped.code, mapped.message, mapped.status);
     }
   });
 }

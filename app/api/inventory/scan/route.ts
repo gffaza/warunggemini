@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { requireGemini } from "@/lib/api/config-checks";
+import { mapGeminiVisionError } from "@/lib/gemini/map-error";
 import { fail, ok } from "@/lib/api/response";
 import { withAuth } from "@/lib/api/with-auth";
 import { scanShelfImage } from "@/services/inventory.service";
@@ -68,12 +69,9 @@ export async function POST(request: NextRequest) {
       }
 
       return ok(result);
-    } catch {
-      return fail(
-        "VISION_FAILED",
-        "Mas Gemini gagal analisis foto. Coba foto ulang ya, Pak.",
-        502,
-      );
+    } catch (error) {
+      const mapped = mapGeminiVisionError(error);
+      return fail(mapped.code, mapped.message, mapped.status);
     }
   });
 }

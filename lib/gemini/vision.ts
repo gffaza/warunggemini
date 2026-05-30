@@ -12,26 +12,31 @@ export async function analyzeShelfImage(
   imageBase64: string,
   mimeType: string,
 ): Promise<VisionScanResult> {
-  const model = getGeminiClient().getGenerativeModel({
+  const response = await getGeminiClient().models.generateContent({
     model: GEMINI_VISION,
-    generationConfig: {
+    contents: [
+      { text: VISION_SCAN_PROMPT },
+      {
+        inlineData: {
+          data: imageBase64,
+          mimeType,
+        },
+      },
+    ],
+    config: {
       responseMimeType: "application/json",
       temperature: 0.1,
     },
   });
 
-  const result = await model.generateContent([
-    { text: VISION_SCAN_PROMPT },
-    {
-      inlineData: {
-        data: imageBase64,
-        mimeType,
-      },
-    },
-  ]);
+  const text = response.text;
+
+  if (!text) {
+    throw new Error("Gemini vision returned empty response");
+  }
 
   const data: VisionScanResponse = parseJsonResponse(
-    result.response.text(),
+    text,
     visionScanResponseSchema,
     "Gemini vision",
   );

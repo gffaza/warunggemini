@@ -10,18 +10,20 @@ import { buildChatParsePrompt } from "@/lib/gemini/prompts/chat-parse.prompt";
 export async function parseTransactionMessage(
   message: string,
 ): Promise<GeminiParseResponse> {
-  const model = getGeminiClient().getGenerativeModel({
+  const response = await getGeminiClient().models.generateContent({
     model: GEMINI_FLASH,
-    generationConfig: {
+    contents: buildChatParsePrompt(message),
+    config: {
       responseMimeType: "application/json",
       temperature: 0.2,
     },
   });
 
-  const result = await model.generateContent(buildChatParsePrompt(message));
-  return parseJsonResponse(
-    result.response.text(),
-    geminiParseResponseSchema,
-    "Gemini",
-  );
+  const text = response.text;
+
+  if (!text) {
+    throw new Error("Gemini returned empty response");
+  }
+
+  return parseJsonResponse(text, geminiParseResponseSchema, "Gemini");
 }
