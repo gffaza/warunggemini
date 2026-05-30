@@ -22,7 +22,7 @@ export const batchUpsertItemSchema = z.object({
 });
 
 export const batchUpsertRequestSchema = z.object({
-  items: z.array(batchUpsertItemSchema).min(1),
+  items: z.array(batchUpsertItemSchema).min(1).max(30),
 });
 
 export type VisionScanResponse = z.infer<typeof visionScanResponseSchema>;

@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { AlertTriangle, PackageOpen } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { PhotoUpload } from "@/components/inventory/photo-upload";
 import { ScanReviewSheet } from "@/components/inventory/scan-review-sheet";
 import { StockCard } from "@/components/inventory/stock-card";
@@ -43,12 +44,10 @@ export function InventoryView() {
     <div className="flex flex-col">
       {Toast}
 
-      <header className="border-b border-border bg-surface px-4 py-4">
-        <h1 className="text-xl font-bold text-foreground">Stok Barang</h1>
-        <p className="text-sm text-muted-foreground">
-          Foto rak — Mas Gemini bantu hitung
-        </p>
-      </header>
+      <PageHeader
+        title="Stok Barang"
+        description="Foto rak — Mas Gemini bantu hitung"
+      />
 
       <div className="space-y-4 px-4 py-4">
         <PhotoUpload

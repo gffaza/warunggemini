@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GreetingSection } from "@/components/dashboard/greeting-section";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { InsightCard } from "@/components/dashboard/insight-card";
 import { LowStockPreview } from "@/components/dashboard/low-stock-preview";
 import { QuickActions } from "@/components/dashboard/quick-actions";
@@ -49,10 +50,13 @@ export function HomeDashboard() {
   if (loadState === "error" || !data) {
     return (
       <div className="space-y-4 px-4 pt-6">
-        <GreetingSection
-          ownerName={ownerName}
-          warungName={user?.warungName}
-        />
+        <div className="flex items-start justify-between gap-3">
+          <GreetingSection
+            ownerName={ownerName}
+            warungName={user?.warungName}
+          />
+          <LogoutButton />
+        </div>
         <ErrorBanner
           message="Ups, gagal memuat data beranda. Coba lagi ya, Pak."
           onRetry={() => void loadDashboard()}
@@ -63,7 +67,10 @@ export function HomeDashboard() {
 
   return (
     <div className="space-y-6 px-4 pt-6 pb-4">
-      <GreetingSection ownerName={ownerName} warungName={user?.warungName} />
+      <div className="flex items-start justify-between gap-3">
+        <GreetingSection ownerName={ownerName} warungName={user?.warungName} />
+        <LogoutButton />
+      </div>
 
       <TodaySalesCard sales={data.sales} />
 

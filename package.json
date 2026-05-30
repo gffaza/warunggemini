@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "start:standalone": "node .next/standalone/server.js",
+    "lint": "eslint",
+    "deploy:secrets": "bash scripts/setup-secrets.sh",
+    "deploy:cloud-run": "bash scripts/deploy-cloud-run.sh"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
