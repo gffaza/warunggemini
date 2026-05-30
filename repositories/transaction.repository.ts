@@ -32,6 +32,18 @@ function mapDoc(id: string, data: FirebaseFirestore.DocumentData): Transaction {
   };
 }
 
+export async function findTransactionsByUser(
+  userId: string,
+): Promise<Transaction[]> {
+  const db = getAdminFirestore();
+  const snapshot = await db
+    .collection(COLLECTION)
+    .where("userId", "==", userId)
+    .get();
+
+  return snapshot.docs.map((doc) => mapDoc(doc.id, doc.data()));
+}
+
 export async function findTransactionsByIds(
   ids: string[],
 ): Promise<Transaction[]> {

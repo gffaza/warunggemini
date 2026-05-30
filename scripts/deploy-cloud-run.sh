@@ -112,7 +112,7 @@ gcloud run deploy "${SERVICE}" \
   --timeout=120 \
   --concurrency=80 \
   --set-secrets="GEMINI_API_KEY=gemini-api-key:latest,FIREBASE_SERVICE_ACCOUNT_JSON=firebase-sa-json:latest" \
-  --set-env-vars="NODE_ENV=production,NEXT_TELEMETRY_DISABLED=1"
+  --set-env-vars="NODE_ENV=production,NEXT_TELEMETRY_DISABLED=1,HOSTNAME=0.0.0.0"
 
 URL="$(gcloud run services describe "${SERVICE}" \
   --region="${REGION}" --project="${PROJECT_ID}" \

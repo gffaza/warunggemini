@@ -66,7 +66,11 @@ export function LoginView() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <GoogleSignInButton onSignIn={signInWithGoogle} />
+          <PhoneOtpForm
+            onSendOtp={sendPhoneOtp}
+            onVerifyOtp={verifyPhoneOtp}
+            onReset={resetPhoneVerification}
+          />
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -77,11 +81,7 @@ export function LoginView() {
             </div>
           </div>
 
-          <PhoneOtpForm
-            onSendOtp={sendPhoneOtp}
-            onVerifyOtp={verifyPhoneOtp}
-            onReset={resetPhoneVerification}
-          />
+          <GoogleSignInButton onSignIn={signInWithGoogle} />
         </CardContent>
       </Card>
 

@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,
+  // Trace from repo root so standalone Docker COPY is complete
+  outputFileTracingRoot: projectRoot,
   turbopack: {
     root: projectRoot,
   },

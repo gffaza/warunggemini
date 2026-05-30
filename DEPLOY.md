@@ -38,7 +38,11 @@ gcloud services enable \
    ```bash
    firebase deploy --only firestore:indexes --project YOUR_PROJECT_ID
    ```
-3. **Service account** — Firebase Console → Project settings → Service accounts → **Generate new private key**. Minify to one line for the secret (see `scripts/setup-secrets.sh`).
+3. **Service account** — Firebase Console → Project settings → Service accounts → **Generate new private key**. Minify to one line for the secret:
+   ```bash
+   node -e "console.log(JSON.stringify(require('./path-to-key.json')))"
+   ```
+   Or on PowerShell: `Get-Content key.json -Raw | ConvertFrom-Json | ConvertTo-Json -Compress`
 4. **Gemini** — [Google AI Studio](https://aistudio.google.com/apikey) → create API key.
 
 ### Local file for builds
@@ -167,6 +171,8 @@ Cloud Build uses `E2_HIGHCPU_8` for faster `docker build`.
 
 ### A. Scripted deploy (recommended)
 
+**Linux / macOS / Git Bash:**
+
 ```bash
 cp .env.production.example .env.production
 # Edit .env.production
@@ -174,6 +180,16 @@ cp .env.production.example .env.production
 ./scripts/setup-secrets.sh
 chmod +x scripts/deploy-cloud-run.sh
 ./scripts/deploy-cloud-run.sh
+```
+
+**Windows (PowerShell):**
+
+```powershell
+Copy-Item .env.production.example .env.production
+# Edit .env.production
+
+npm run deploy:secrets:win
+npm run deploy:cloud-run:win
 ```
 
 Overrides:

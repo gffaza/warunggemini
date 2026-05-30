@@ -22,13 +22,13 @@ export function QuickActions({ className }: QuickActionsProps) {
         <QuickActionLink
           href="/chat"
           icon={MessageSquare}
-          label="Catat Jualan"
-          description="Ketik atau bilang jualan"
+          label="Catat Penjualan"
+          description="Ketik seperti chat"
         />
         <QuickActionLink
           href="/inventory"
           icon={Package}
-          label="Cek Stok"
+          label="Foto Rak"
           description="Foto rak barang"
         />
       </div>

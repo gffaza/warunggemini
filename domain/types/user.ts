@@ -10,6 +10,7 @@ export interface AuthUser {
 
 export interface UserProfile extends AuthUser {
   warungName?: string;
-  warungType?: WarungType;
+  businessCategory?: WarungType;
+  location?: string;
   onboardingCompleted: boolean;
 }

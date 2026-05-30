@@ -19,11 +19,3 @@ export const warungTypes = [
 ] as const;
 
 export type WarungType = (typeof warungTypes)[number]["value"];
-
-export const ONBOARDING_STORAGE_KEY = "warunggemini_onboarding";
-
-export interface OnboardingData {
-  warungName: string;
-  warungType: WarungType;
-  completed: boolean;
-}

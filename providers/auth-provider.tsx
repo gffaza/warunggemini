@@ -20,23 +20,26 @@ import {
 } from "firebase/auth";
 import { isFirebaseConfigured } from "@/config/env";
 import type { WarungType } from "@/config/site";
+import type { SaveWarungProfilePayload } from "@/domain/schemas/user.schema";
 import { AUTH_ERROR_CODES } from "@/domain/constants/error-codes";
 import type { AuthUser, UserProfile } from "@/domain/types/user";
+import type { WarungProfile } from "@/domain/types/warung-profile";
+import {
+  createUserProfile,
+  fetchUserProfile,
+} from "@/lib/api/profile-client";
 import {
   getFirebaseAuth,
   getGoogleProvider,
   type PhoneConfirmationResult,
 } from "@/lib/firebase/client";
-import {
-  clearOnboardingData,
-  getOnboardingData,
-  saveOnboardingData,
-} from "@/lib/firebase/onboarding-storage";
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
+export type ProfileLoadState = "idle" | "pending" | "loaded" | "error";
 
 export interface AuthContextValue {
   status: AuthStatus;
+  profileLoadState: ProfileLoadState;
   user: UserProfile | null;
   configError: string | null;
   signInWithGoogle: () => Promise<void>;
@@ -44,10 +47,8 @@ export interface AuthContextValue {
   verifyPhoneOtp: (otp: string) => Promise<void>;
   resetPhoneVerification: () => void;
   signOutUser: () => Promise<void>;
-  completeOnboarding: (data: {
-    warungName: string;
-    warungType: WarungType;
-  }) => void;
+  completeOnboarding: (data: SaveWarungProfilePayload) => Promise<WarungProfile>;
+  retryProfileLoad: () => Promise<void>;
   getPostAuthPath: () => string;
 }
 
@@ -63,30 +64,56 @@ function mapFirebaseUser(user: User): AuthUser {
   };
 }
 
-function buildUserProfile(user: User): UserProfile {
-  const onboarding = getOnboardingData();
-  const base = mapFirebaseUser(user);
-
+function mergeUserProfile(
+  authUser: AuthUser,
+  profile: WarungProfile | null,
+): UserProfile {
   return {
-    ...base,
-    warungName: onboarding?.warungName,
-    warungType: onboarding?.warungType,
-    onboardingCompleted: Boolean(onboarding?.completed),
+    ...authUser,
+    warungName: profile?.warungName,
+    businessCategory: profile?.businessCategory,
+    location: profile?.location,
+    onboardingCompleted: Boolean(profile?.warungName),
   };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
+  const [profileLoadState, setProfileLoadState] =
+    useState<ProfileLoadState>("idle");
   const [user, setUser] = useState<UserProfile | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
 
   const confirmationResultRef = useRef<PhoneConfirmationResult | null>(null);
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  const firebaseUserRef = useRef<User | null>(null);
 
   const getPostAuthPath = useCallback((): string => {
-    const onboarding = getOnboardingData();
-    return onboarding?.completed ? "/home" : "/onboarding";
+    return user?.onboardingCompleted ? "/home" : "/onboarding";
+  }, [user?.onboardingCompleted]);
+
+  const loadProfile = useCallback(async (firebaseUser: User) => {
+    setProfileLoadState("pending");
+
+    try {
+      const profile = await fetchUserProfile();
+      setUser(mergeUserProfile(mapFirebaseUser(firebaseUser), profile));
+      setProfileLoadState("loaded");
+    } catch {
+      setUser(mergeUserProfile(mapFirebaseUser(firebaseUser), null));
+      setProfileLoadState("error");
+    }
   }, []);
+
+  const retryProfileLoad = useCallback(async () => {
+    const firebaseUser = firebaseUserRef.current;
+
+    if (!firebaseUser) {
+      return;
+    }
+
+    await loadProfile(firebaseUser);
+  }, [loadProfile]);
 
   const resetPhoneVerification = useCallback(() => {
     confirmationResultRef.current = null;
@@ -103,23 +130,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         "Firebase belum dikonfigurasi. Salin .env.example ke .env.local.",
       );
       setStatus("unauthenticated");
+      setProfileLoadState("idle");
       return;
     }
 
     const auth = getFirebaseAuth();
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      firebaseUserRef.current = firebaseUser;
+
       if (firebaseUser) {
-        setUser(buildUserProfile(firebaseUser));
         setStatus("authenticated");
+        void loadProfile(firebaseUser);
       } else {
         setUser(null);
         setStatus("unauthenticated");
+        setProfileLoadState("idle");
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [loadProfile]);
 
   const signInWithGoogle = useCallback(async () => {
     const auth = getFirebaseAuth();
@@ -176,31 +207,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOutUser = useCallback(async () => {
     const auth = getFirebaseAuth();
     await signOut(auth);
-    clearOnboardingData();
     resetPhoneVerification();
   }, [resetPhoneVerification]);
 
-  const completeOnboarding = useCallback(
-    (data: { warungName: string; warungType: WarungType }) => {
-      saveOnboardingData(data);
+  const applyProfile = useCallback((profile: WarungProfile) => {
+    setUser((current) =>
+      current
+        ? {
+            ...current,
+            warungName: profile.warungName,
+            businessCategory: profile.businessCategory,
+            location: profile.location,
+            onboardingCompleted: true,
+          }
+        : current,
+    );
+    setProfileLoadState("loaded");
+  }, []);
 
-      setUser((current) =>
-        current
-          ? {
-              ...current,
-              warungName: data.warungName,
-              warungType: data.warungType,
-              onboardingCompleted: true,
-            }
-          : current,
-      );
+  const completeOnboarding = useCallback(
+    async (data: SaveWarungProfilePayload): Promise<WarungProfile> => {
+      try {
+        const profile = await createUserProfile(data);
+        applyProfile(profile);
+        return profile;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Profil warung sudah ada")
+        ) {
+          const existing = await fetchUserProfile();
+
+          if (existing) {
+            applyProfile(existing);
+            return existing;
+          }
+        }
+
+        throw error;
+      }
     },
-    [],
+    [applyProfile],
   );
 
   const value = useMemo<AuthContextValue>(
     () => ({
       status,
+      profileLoadState,
       user,
       configError,
       signInWithGoogle,
@@ -209,10 +262,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPhoneVerification,
       signOutUser,
       completeOnboarding,
+      retryProfileLoad,
       getPostAuthPath,
     }),
     [
       status,
+      profileLoadState,
       user,
       configError,
       signInWithGoogle,
@@ -221,6 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPhoneVerification,
       signOutUser,
       completeOnboarding,
+      retryProfileLoad,
       getPostAuthPath,
     ],
   );
@@ -228,4 +284,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   );
+}
+
+export function useAuthContext(): AuthContextValue {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuthContext must be used within AuthProvider");
+  }
+
+  return context;
 }

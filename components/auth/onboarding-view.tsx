@@ -13,19 +13,12 @@ import { cn } from "@/lib/utils/cn";
 
 export function OnboardingView() {
   const router = useRouter();
-  const { user, completeOnboarding, status } = useAuth();
+  const { user, completeOnboarding } = useAuth();
   const [warungName, setWarungName] = useState("");
-  const [warungType, setWarungType] = useState<WarungType>("kelontong");
+  const [businessCategory, setBusinessCategory] = useState<WarungType | "">("");
+  const [location, setLocation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  if (status === "loading") {
-    return (
-      <AuthShell title="Memuat...">
-        <p className="text-center text-muted-foreground">Memuat...</p>
-      </AuthShell>
-    );
-  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -39,13 +32,18 @@ export function OnboardingView() {
     setIsSubmitting(true);
 
     try {
-      completeOnboarding({
+      await completeOnboarding({
         warungName: warungName.trim(),
-        warungType,
+        businessCategory: businessCategory || undefined,
+        location: location.trim() || undefined,
       });
       router.replace("/chat");
-    } catch {
-      setError("Gagal menyimpan profil warung. Coba lagi ya, Pak.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Gagal menyimpan profil warung. Coba lagi ya, Pak.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -60,20 +58,10 @@ export function OnboardingView() {
           : "Ceritakan warung Anda — cuma 1 menit."
       }
     >
-      <div className="mb-6">
-        <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="font-medium text-muted-foreground">Langkah 1 dari 1</span>
-          <span className="font-semibold text-primary">100%</span>
-        </div>
-        <div className="h-2 overflow-hidden rounded-full bg-border">
-          <div className="h-full w-full rounded-full bg-primary" />
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label htmlFor="warungName" className="text-sm font-medium">
-            Nama Warung
+            Nama Warung <span className="text-error">*</span>
           </label>
           <Input
             id="warungName"
@@ -81,29 +69,34 @@ export function OnboardingView() {
             value={warungName}
             onChange={(event) => setWarungName(event.target.value)}
             disabled={isSubmitting}
-            error={Boolean(error)}
+            error={Boolean(error && warungName.trim().length < 2)}
+            required
+            autoComplete="organization"
           />
         </div>
 
         <fieldset className="space-y-3">
-          <legend className="text-sm font-medium">Jenis Warung</legend>
+          <legend className="text-sm font-medium">
+            Kategori Usaha{" "}
+            <span className="font-normal text-muted-foreground">(opsional)</span>
+          </legend>
           <div className="grid gap-3">
             {warungTypes.map((type) => (
               <label
                 key={type.value}
                 className={cn(
                   "flex min-h-[56px] cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-3 text-base transition-colors",
-                  warungType === type.value
+                  businessCategory === type.value
                     ? "border-primary bg-primary-light"
                     : "border-border-strong bg-surface",
                 )}
               >
                 <input
                   type="radio"
-                  name="warungType"
+                  name="businessCategory"
                   value={type.value}
-                  checked={warungType === type.value}
-                  onChange={() => setWarungType(type.value)}
+                  checked={businessCategory === type.value}
+                  onChange={() => setBusinessCategory(type.value)}
                   className="sr-only"
                 />
                 <span className="text-2xl" aria-hidden>
@@ -114,6 +107,21 @@ export function OnboardingView() {
             ))}
           </div>
         </fieldset>
+
+        <div className="space-y-2">
+          <label htmlFor="location" className="text-sm font-medium">
+            Lokasi{" "}
+            <span className="font-normal text-muted-foreground">(opsional)</span>
+          </label>
+          <Input
+            id="location"
+            placeholder="Contoh: Jakarta Selatan"
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+            disabled={isSubmitting}
+            autoComplete="address-level2"
+          />
+        </div>
 
         {error ? <ErrorBanner message={error} /> : null}
 

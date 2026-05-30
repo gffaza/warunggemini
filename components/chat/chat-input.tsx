@@ -1,6 +1,6 @@
 "use client";
 
-import { Mic, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { ExampleChips } from "@/components/chat/example-chips";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ export function ChatInput({
   showExamples = true,
 }: ChatInputProps) {
   const [draft, setDraft] = useState("");
-  const [voiceNotice, setVoiceNotice] = useState(false);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -38,16 +37,11 @@ export function ChatInput({
     onSend(example);
   }
 
-  function handleVoicePlaceholder() {
-    setVoiceNotice(true);
-    window.setTimeout(() => setVoiceNotice(false), 2500);
-  }
-
   return (
     <div className="border-t border-border bg-surface px-3 py-3">
       {showExamples ? (
         <div className="mb-3">
-          <p className="mb-2 text-xs font-medium text-muted-foreground">
+          <p className="mb-2 text-sm font-medium text-muted-foreground">
             Contoh — ketuk untuk coba:
           </p>
           <ExampleChips
@@ -58,31 +52,7 @@ export function ChatInput({
         </div>
       ) : null}
 
-      {voiceNotice ? (
-        <p
-          role="status"
-          className="mb-2 rounded-xl bg-info-light px-3 py-2 text-sm text-info"
-        >
-          Fitur suara segera hadir, Pak. Ketik dulu ya.
-        </p>
-      ) : null}
-
       <form onSubmit={handleSubmit} className="flex items-end gap-2">
-        <button
-          type="button"
-          onClick={handleVoicePlaceholder}
-          disabled={disabled || isSending}
-          aria-label="Rekam suara"
-          className={cn(
-            "flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary",
-            "transition-all hover:bg-primary-light/80 active:scale-[0.97]",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-            "disabled:opacity-50",
-          )}
-        >
-          <Mic className="h-5 w-5" aria-hidden />
-        </button>
-
         <label className="sr-only" htmlFor="chat-message">
           Ketik jualan
         </label>

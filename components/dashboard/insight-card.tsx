@@ -1,27 +1,31 @@
 import { Lightbulb, Sparkles } from "lucide-react";
-import { EmptyState } from "@/components/shared/empty-state";
+import { DashboardSectionEmpty } from "@/components/dashboard/dashboard-section-empty";
 import type { DailyInsight } from "@/domain/types/dashboard";
 import { cn } from "@/lib/utils/cn";
 
 interface InsightCardProps {
   insight: DailyInsight | null;
+  isFirstTime?: boolean;
 }
 
-export function InsightCard({ insight }: InsightCardProps) {
+export function InsightCard({ insight, isFirstTime = false }: InsightCardProps) {
   if (!insight) {
     return (
-      <div
-        className={cn(
-          "rounded-3xl border border-border bg-secondary-light p-6",
-        )}
-      >
-        <EmptyState
-          className="py-4"
-          title="Insight belum tersedia"
-          description="Catat minimal 1 jualan dulu ya, Pak — nanti Mas Gemini kasih saran."
-          icon={<Lightbulb className="h-10 w-10 text-secondary" aria-hidden />}
-        />
-      </div>
+      <DashboardSectionEmpty
+        icon={<Lightbulb className="h-6 w-6 text-secondary" aria-hidden />}
+        title="Insight Mas Gemini"
+        description={
+          isFirstTime
+            ? "Setelah Anda catat jualan, Mas Gemini kasih saran praktis untuk warung."
+            : "Catat minimal 1 jualan dulu ya, Pak — nanti Mas Gemini kasih saran."
+        }
+        hint={
+          isFirstTime
+            ? "Semakin sering catat, semakin akurat sarannya."
+            : undefined
+        }
+        className={cn(isFirstTime && "border-secondary/20 bg-secondary-light/40")}
+      />
     );
   }
 

@@ -1,19 +1,13 @@
 "use client";
 
-import { useContext } from "react";
-import {
-  AuthContext,
-  type AuthContextValue,
-} from "@/providers/auth-provider";
+import { useAuthContext, type AuthContextValue } from "@/providers/auth-provider";
 
 export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-
-  return context;
+  return useAuthContext();
 }
 
-export type { AuthContextValue, AuthStatus } from "@/providers/auth-provider";
+export type {
+  AuthContextValue,
+  AuthStatus,
+  ProfileLoadState,
+} from "@/providers/auth-provider";

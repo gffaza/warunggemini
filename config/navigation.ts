@@ -18,5 +18,5 @@ export const bottomNavItems: NavItem[] = [
   { label: "Beranda", href: "/home", icon: Home, available: true },
   { label: "Catat", href: "/chat", icon: MessageSquare, available: true },
   { label: "Stok", href: "/inventory", icon: Package, available: true },
-  { label: "Laporan", href: "/reports", icon: BarChart3, available: false },
+  { label: "Laporan", href: "/reports", icon: BarChart3, available: true },
 ];

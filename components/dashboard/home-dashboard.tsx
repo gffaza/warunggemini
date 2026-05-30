@@ -1,50 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { DashboardWelcome } from "@/components/dashboard/dashboard-welcome";
 import { GreetingSection } from "@/components/dashboard/greeting-section";
-import { LogoutButton } from "@/components/layout/logout-button";
 import { InsightCard } from "@/components/dashboard/insight-card";
 import { LowStockPreview } from "@/components/dashboard/low-stock-preview";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { TodaySalesCard } from "@/components/dashboard/today-sales-card";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { ErrorBanner } from "@/components/shared/error-banner";
-import { LoadingState } from "@/components/shared/loading-state";
-import type { HomeDashboardData } from "@/domain/types/dashboard";
 import { useAuth } from "@/hooks/use-auth";
-import { fetchHomeDashboardMock } from "@/lib/mock/home-dashboard";
-
-type LoadState = "loading" | "success" | "error";
+import { useDashboard } from "@/hooks/use-dashboard";
 
 export function HomeDashboard() {
   const { user } = useAuth();
-  const [loadState, setLoadState] = useState<LoadState>("loading");
-  const [data, setData] = useState<HomeDashboardData | null>(null);
+  const { data, loadState, reload } = useDashboard();
 
   const ownerName =
     user?.displayName?.split(" ")[0] ?? user?.warungName ?? "Pak/Bu";
 
-  const loadDashboard = useCallback(async () => {
-    setLoadState("loading");
-
-    try {
-      const dashboard = await fetchHomeDashboardMock();
-      setData(dashboard);
-      setLoadState("success");
-    } catch {
-      setLoadState("error");
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadDashboard();
-  }, [loadDashboard]);
-
   if (loadState === "loading") {
-    return (
-      <div className="px-4 pt-6">
-        <LoadingState message="Memuat beranda..." fullScreen />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (loadState === "error" || !data) {
@@ -59,11 +35,13 @@ export function HomeDashboard() {
         </div>
         <ErrorBanner
           message="Ups, gagal memuat data beranda. Coba lagi ya, Pak."
-          onRetry={() => void loadDashboard()}
+          onRetry={() => void reload()}
         />
       </div>
     );
   }
+
+  const isFirstTime = !data.hasAnyTransactions;
 
   return (
     <div className="space-y-6 px-4 pt-6 pb-4">
@@ -72,13 +50,19 @@ export function HomeDashboard() {
         <LogoutButton />
       </div>
 
-      <TodaySalesCard sales={data.sales} />
-
-      <InsightCard insight={data.insight} />
-
-      <LowStockPreview items={data.lowStock} />
-
-      <QuickActions />
+      {isFirstTime ? (
+        <DashboardWelcome warungName={user?.warungName} />
+      ) : (
+        <>
+          <TodaySalesCard sales={data.sales} />
+          <InsightCard insight={data.insight} />
+          <LowStockPreview
+            items={data.lowStock}
+            hasInventory={data.hasInventory}
+          />
+          <QuickActions />
+        </>
+      )}
     </div>
   );
 }

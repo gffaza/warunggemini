@@ -36,12 +36,9 @@ if [[ -z "${FIREBASE_SERVICE_ACCOUNT_JSON:-}" ]]; then
   exit 1
 fi
 
-# Validate JSON (requires jq: brew install jq)
-if ! command -v jq &>/dev/null; then
-  echo "ERROR: jq required. Install: brew install jq"
-  exit 1
-fi
-echo "${FIREBASE_SERVICE_ACCOUNT_JSON}" | jq -e . >/dev/null
+# Validate JSON (Node ships with the project toolchain)
+export FIREBASE_SERVICE_ACCOUNT_JSON
+node -e 'JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)'
 
 echo "==> Project: ${PROJECT_ID}"
 

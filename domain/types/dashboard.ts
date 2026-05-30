@@ -24,4 +24,6 @@ export interface HomeDashboardData {
   sales: TodaySalesSummary;
   lowStock: LowStockItem[];
   insight: DailyInsight | null;
+  hasAnyTransactions: boolean;
+  hasInventory: boolean;
 }

@@ -1,26 +1,39 @@
 import { TrendingUp } from "lucide-react";
 import { CurrencyDisplay } from "@/components/shared/currency-display";
-import { EmptyState } from "@/components/shared/empty-state";
+import { DashboardSectionEmpty } from "@/components/dashboard/dashboard-section-empty";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TodaySalesSummary } from "@/domain/types/dashboard";
 
 interface TodaySalesCardProps {
   sales: TodaySalesSummary;
+  isFirstTime?: boolean;
 }
 
-export function TodaySalesCard({ sales }: TodaySalesCardProps) {
+export function TodaySalesCard({ sales, isFirstTime = false }: TodaySalesCardProps) {
   const isEmpty = sales.transactionCount === 0 && sales.revenue === 0;
+
+  if (isEmpty && isFirstTime) {
+    return (
+      <DashboardSectionEmpty
+        icon={<TrendingUp className="h-6 w-6" aria-hidden />}
+        title="Belum ada penjualan"
+        description="Catat jualan pertama Anda — cukup ketik seperti chat."
+        hint='Contoh: "jual 3 indomie 45 ribu"'
+        actionLabel="Catat Penjualan"
+        actionHref="/chat"
+      />
+    );
+  }
 
   if (isEmpty) {
     return (
-      <Card className="p-0">
-        <EmptyState
-          className="py-8"
-          title="Belum ada catatan hari ini"
-          description="Setiap jualan yang dicatat akan muncul di sini."
-          icon={<TrendingUp className="h-10 w-10" aria-hidden />}
-        />
-      </Card>
+      <DashboardSectionEmpty
+        icon={<TrendingUp className="h-6 w-6" aria-hidden />}
+        title="Belum ada catatan hari ini"
+        description="Setiap jualan yang dicatat hari ini akan muncul di sini."
+        actionLabel="Catat Penjualan"
+        actionHref="/chat"
+      />
     );
   }
 

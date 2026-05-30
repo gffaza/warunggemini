@@ -42,5 +42,14 @@ export function getAdminFirestore(): Firestore {
 }
 
 export function isAdminConfigured(): boolean {
-  return Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!raw) {
+    return false;
+  }
+  try {
+    JSON.parse(raw);
+    return true;
+  } catch {
+    return false;
+  }
 }
