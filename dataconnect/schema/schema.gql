@@ -1,0 +1,46 @@
+type User @table {
+  displayName: String!
+  email: String!
+  createdAt: Timestamp!
+  phoneNumber: String
+  deliveryAddress: String
+}
+
+type MenuItem @table {
+  name: String!
+  price: Float!
+  description: String!
+  category: String!
+  createdAt: Timestamp!
+  imageUrl: String
+  isAvailable: Boolean
+}
+
+type Order @table {
+  user: User!
+  orderDate: Timestamp!
+  totalAmount: Float!
+  status: String!
+  orderType: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  deliveryAddress: String
+  pickupTime: Timestamp
+}
+
+type OrderItem @table {
+  order: Order!
+  menuItem: MenuItem!
+  quantity: Int!
+  priceAtTimeOfOrder: Float!
+  specialInstructions: String
+}
+
+type LoyaltyPoint @table {
+  user: User!
+  pointsEarned: Int!
+  pointsSpent: Int!
+  currentBalance: Int!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+}

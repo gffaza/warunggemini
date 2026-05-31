@@ -9,12 +9,10 @@
     "start:standalone": "node .next/standalone/server.js",
     "lint": "eslint",
     "deploy:secrets": "bash scripts/setup-secrets.sh",
-    "deploy:cloud-run": "bash scripts/deploy-cloud-run.sh",
-    "deploy:secrets:win": "powershell -ExecutionPolicy Bypass -File scripts/setup-secrets.ps1",
-    "deploy:cloud-run:win": "powershell -ExecutionPolicy Bypass -File scripts/deploy-cloud-run.ps1"
+    "deploy:cloud-run": "bash scripts/deploy-cloud-run.sh"
   },
   "dependencies": {
-    "@google/genai": "^2.7.0",
+    "@google/generative-ai": "^0.24.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.14.0",
