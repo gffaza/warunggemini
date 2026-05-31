@@ -13,7 +13,27 @@ const ALLOWED_TYPES = new Set([
   "image/jpg",
   "image/png",
   "image/webp",
+  "image/heic",
+  "image/heif",
 ]);
+
+function resolveImageMimeType(file: File): string | null {
+  if (file.type && ALLOWED_TYPES.has(file.type)) {
+    return file.type === "image/jpg" ? "image/jpeg" : file.type;
+  }
+
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  const extensionMap: Record<string, string> = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    heic: "image/heic",
+    heif: "image/heif",
+  };
+
+  return extension ? (extensionMap[extension] ?? null) : null;
+}
 
 export async function POST(request: NextRequest) {
   return withAuth(request, async (req, _userId) => {
@@ -38,10 +58,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!ALLOWED_TYPES.has(file.type)) {
+    const mimeType = resolveImageMimeType(file);
+
+    if (!mimeType) {
       return fail(
         "VALIDATION_ERROR",
-        "Format foto harus JPG atau PNG.",
+        "Format foto harus JPG, PNG, atau HEIC.",
         400,
       );
     }
@@ -57,7 +79,7 @@ export async function POST(request: NextRequest) {
     try {
       const buffer = Buffer.from(await file.arrayBuffer());
       const base64 = buffer.toString("base64");
-      const result = await scanShelfImage(base64, file.type);
+      const result = await scanShelfImage(base64, mimeType);
 
       if (result.confidence === "low" && result.items.length === 0) {
         return fail(
