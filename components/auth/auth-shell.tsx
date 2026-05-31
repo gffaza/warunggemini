@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Logo } from "@/components/shared/logo";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils/cn";
 
@@ -19,9 +20,7 @@ export function AuthShell({
     <div className="min-h-dvh bg-background">
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pb-8 pt-10">
         <header className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground shadow-md">
-            WG
-          </div>
+          <Logo size={64} className="mx-auto mb-4 shadow-md rounded-full" />
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">
             {siteConfig.name}
           </p>

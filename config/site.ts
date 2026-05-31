@@ -1,5 +1,6 @@
 export const siteConfig = {
   name: "WarungGemini",
+  logo: "/logo.svg",
   tagline: "AI Co-Founder untuk Warung & UMKM Indonesia",
   subTagline: "Dari chat jadi untung",
   description:

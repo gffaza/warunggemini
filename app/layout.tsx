@@ -20,8 +20,20 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [{ url: siteConfig.logo, type: "image/svg+xml" }],
+    apple: [{ url: siteConfig.logo, type: "image/svg+xml" }],
+    shortcut: siteConfig.logo,
+  },
+  openGraph: {
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [{ url: siteConfig.logo, alt: siteConfig.name }],
+  },
+  twitter: {
+    card: "summary",
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.logo],
   },
 };
 

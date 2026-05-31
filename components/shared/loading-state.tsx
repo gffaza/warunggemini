@@ -1,3 +1,4 @@
+import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils/cn";
 
 interface LoadingStateProps {
@@ -21,6 +22,9 @@ export function LoadingState({
         className,
       )}
     >
+      {fullScreen ? (
+        <Logo size={56} className="animate-pulse" />
+      ) : null}
       <span
         className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"
         aria-hidden
